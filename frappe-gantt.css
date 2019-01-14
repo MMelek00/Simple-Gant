@@ -1,3 +1,125 @@
+.add-task input[type="submit"]   {
+    color: white;
+    width: 80px;
+    margin-top: 4px;
+    background-color:#27ae60;
+    padding:4px;
+    border:none;
+    cursor:pointer;
+	    align-self: flex-end;
+}
+.add-task input[type="reset"] {
+    color:white;
+    width:80px;
+    margin-top: 4px;
+    background-color:#e74c3c;
+    padding:4px;
+    border:none;
+     cursor:pointer;
+	     align-self: flex-end;
+}
+.add-task input[type="submit"]:hover{
+background-color:#27ae60b0;
+}
+.add-task input[type="reset"]:hover{
+background-color:#e74c3cb8;
+}
+.circle{
+	fill:#14283c;
+}
+
+.text-circle{
+	fill:#a3bbad;
+	font-weight: 600;
+}
+.tools{
+	text-align:right;
+
+}
+.input1{
+background-color:	rgba(0, 0, 0, 0.8);
+border:0;
+width:70%;
+color: #959da5;
+}
+
+.input2{
+background-color:	rgba(0, 0, 0, 0.8);
+border:0;
+width:100%;
+margin-bottom:4px;
+color: #959da5;
+	
+}
+.tools svg,.subtitle svg{
+	float:right;
+	display:block;
+	padding:4px;
+	cursor:pointer;
+	fill:white;
+	padding:8px;	
+	font-weight:bold;
+	width:20px;
+	height:20px;
+
+}
+.tools svg:hover,.subtitle svg:hover{
+	fill:#e74c3c;
+}
+.tools svg path{
+		font-weight:900;
+}
+
+.contextmenu {
+    position: absolute;
+    width: 100px;
+    height: auto;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0;
+    color: black;
+    border-radius: 3px;
+    cursor:pointer;
+	display:block;
+
+}
+.disabled{
+	pointer-events: none;
+	color:#a9b5c1;
+}
+
+.wrong{
+	border:1px solid red;
+}
+
+.add-task{
+	position:absolute;
+	width:200px;
+	padding:4px;
+	background-color:rgba(0,0,0,0.2);
+	display:none;
+	
+}
+.add-task form{
+	display:flex;
+	flex-direction:column;
+	margin-bottom:2px;
+}
+
+
+.contextmenu span {
+    padding: 8px;
+    display: block	;
+    font-weight: 600;
+}
+
+
+
+.contextmenu span:hover {
+       background: rgba(0, 0, 0, 0.2);
+
+}
+
+
 .triangle{
 	opacity:0.6;
 	cursor:pointer;
@@ -8,7 +130,7 @@
 }
 
 .gantt .red{
-	fill:red;
+	fill:#e74c3c;
 }
 .gantt .orange{
 	fill:#FF6B30;
@@ -17,7 +139,7 @@
 	fill:#FFD300;
 }
 .gantt .green{
-	fill:green;
+	fill:#27ae60;
 }
 .outline{
 	outline:2px solid #333;
