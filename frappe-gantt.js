@@ -424,12 +424,11 @@ class Bar {
             this.gantt.options.column_width *
                 this.duration *
                 (this.task.progress / 100) || 0;
-		
+
         this.group = createSVG('g', {
             class: 'bar-wrapper ' + (this.task.custom_class || ''),
             'data-id': this.task.id
         });
-		console.log(this.task);
 		if(this.task.has.length==0)
         this.bar_group = createSVG('g', {
             class: 'bar-group',
@@ -473,11 +472,11 @@ class Bar {
 		this.draw_circle();
     }
 
-	
-	
-	
+
+
+
     draw_bar() {
-		
+
         this.$bar = createSVG('rect', {
             x: this.x,
             y: this.y,
@@ -495,19 +494,19 @@ class Bar {
             this.$bar.classList.add('bar-invalid');
         }
     }
-	
-	
+
+
 	draw_triangle(){
 		if(this.task.has.length==0){
 			return;
 		}
 		let x= this.x;
 		let y= this.y;
-		
+
 		let point= (x-15) + ',' + (y + 15 )+' '+(x-25)+','+(y)+' '+(x-5)+','+(y);
 		if(this.task.dependencies.length!=0)
 		point=(x-30) + ',' + (y + 15 )+' '+(x-40)+','+(y)+' '+(x-20)+','+(y);
-		
+
 		 this.$triangle = createSVG('polygon', {
 			points:point,
             class: this.getColor(this.task.progress)+" triangle",
@@ -517,7 +516,7 @@ class Bar {
         });
 	}
 	draw_circle(){
-	
+
 		let x= this.x+this.width-5;
 		let y=this.y+5;
 
@@ -528,7 +527,7 @@ class Bar {
 			class:'circle',
 			append_to: this.group
 		});
-				
+
 		this.$txt= createSVG("text",{
 			x:x-3,
 			y:y+4,
@@ -540,7 +539,7 @@ class Bar {
 		animateSVG(this.$txt, 'x', this.x, x-3);
 
 	}
-	
+
 	getColor(progress){
 		if(progress<=50)
 			return "red";
@@ -550,9 +549,9 @@ class Bar {
 			return "orange";
 		if(progress > 80 && progress <=90)
 			return "yellow";
-			
+
 	}
-	
+
 
     draw_progress_bar() {
         if (this.invalid) return;
@@ -563,7 +562,7 @@ class Bar {
             height: this.height,
             rx: this.corner_radius,
             ry: this.corner_radius,
-			//here 
+			//here
             class: this.getColor(this.task.progress),
             append_to: this.bar_group
         });
@@ -639,7 +638,7 @@ class Bar {
     }
 
     setup_click_event() {
-	
+
         $.on(this.bar_group, 'focus ' + this.gantt.options.popup_trigger, e => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
@@ -655,21 +654,21 @@ class Bar {
 
             this.show_popup();
         });
-		
-		
-		
+
+
+
     }
 	triangle_event(){
 		if(!this.$triangle)
 			return;
-		
-		
+
+
 		$.on(this.$triangle,'click',e => {
-			
-			
-			
+
+
+
 			if(e.type=== 'click'){
-				
+
 				//console.log(this.$triangle.getAttribute('hide'));
 				if(this.$triangle.getAttribute('hide')==='off'){
 				this.$triangle.setAttribute('hide','on');
@@ -681,11 +680,11 @@ class Bar {
 				this.update_triangle_position();
 				this.update_circle();
 			}
-			
-			
+
+
 		});
 	}
-	
+
 	toggle_children(className){
 		if(!this.$triangle)
 			return;
@@ -699,16 +698,16 @@ class Bar {
 				ar.forEach(i=>{
 				i.setAttribute('class',className);
 			});
-			
+
 				let tr=document.querySelectorAll("[triangle-id='"+taskid+"']");
 				tr.forEach(i=>{
 				i.setAttribute('hide','off');
 			});
-			
+
 		});
 		this.gantt.unselect_all();
             this.group.classList.toggle('active');
-		
+
 	}
 
     show_popup() {
@@ -758,18 +757,20 @@ class Bar {
     }
 
     date_changed() {
-		
+
         let changed = false;
         const { new_start_date, new_end_date } = this.compute_start_end_date();
 
         if (Number(this.task._start) !== Number(new_start_date)) {
             changed = true;
             this.task._start = new_start_date;
+            this.task.start = date_utils.to_string(new_start_date);
         }
 
         if (Number(this.task._end) !== Number(new_end_date)) {
             changed = true;
             this.task._end = new_end_date;
+            this.task.end = date_utils.to_string(new_end_date);
         }
 
         if (!changed) return;
@@ -779,6 +780,8 @@ class Bar {
             new_start_date,
             date_utils.add(new_end_date, -1, 'second')
         ]);
+
+        console.log(this.task);
     }
 
     progress_changed() {
@@ -889,50 +892,46 @@ class Bar {
             this.$bar.getWidth() * (this.task.progress / 100)
         );
     }
-	
-	
+
+
 	update_triangle_position() {
 		if(!this.$triangle)
 		return;
 
-
 		let x= this.$bar.getX();
 		let y= this.$bar.getY();
-		
+
 		let point=(x-15) + ',' + (y + 15 )+' '+(x-25)+','+(y)+' '+(x-5)+','+(y);
-		
+
 		if(this.$triangle.getAttribute('hide')==='off'){
 		if(this.task.dependencies.length!=0)
 		point=(x-30) + ',' + (y + 15 )+' '+(x-40)+','+(y)+' '+(x-20)+','+(y);
 
 		}else{
 		point= (x-15) + ',' + (y)+' '+(x-25)+','+(y+15)+' '+(x-5)+','+(y+15);
-		
+
 		if(this.task.dependencies.length!=0)
 			point=(x-35) + ',' + (y)+' '+(x-45)+','+(y+15)+' '+(x-25)+','+(y+15);
 
 
 		}
        this.$triangle.setAttribute('points', point);
- 
+
     }
-	
+
 	update_circle(){
 		if(!this.$circle)
 			return;
-		
 
-			
-			
 		let x= this.$bar.getX()+this.$bar.getWidth()-5;
 		let y= this.$bar.getY()+5;
 		this.$circle.setAttribute('cx',x);
 		this.$circle.setAttribute('cy',y);
-		
+
 		this.$txt.setAttribute('x',x-3);
 		this.$txt.setAttribute('y',y+4);
-		
-		
+
+
 	}
 
     update_label_position() {
@@ -1067,27 +1066,22 @@ class Arrow {
 class Popup {
     constructor(parent,gantt, custom_html) {
 		this.gantt=gantt;
-        this.parent = parent;
+    this.parent = parent;
 		this.edible=false;
-		
-		
-						
 		this.add='<svg id="add" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 52 52" style="enable-background:new 0 0 52 52;" xml:space="preserve"><g  stroke-width="6"><path d="M26,0C11.664,0,0,11.663,0,26s11.664,26,26,26s26-11.663,26-26S40.336,0,26,0z M26,50C12.767,50,2,39.233,2,26   S12.767,2,26,2s24,10.767,24,24S39.233,50,26,50z"/><path d="M38.5,25H27V14c0-0.553-0.448-1-1-1s-1,0.447-1,1v11H13.5c-0.552,0-1,0.447-1,1s0.448,1,1,1H25v12c0,0.553,0.448,1,1,1   s1-0.447,1-1V27h11.5c0.552,0,1-0.447,1-1S39.052,25,38.5,25z"/></g></svg>';
 		this.edit='<svg id="edit" xmlns="http://www.w3.org/2000/svg" height="476pt" viewBox="0 0 476.76426 476" width="476pt"><path  stroke-width="6" d="m451.023438 26.117188c-34.386719-34.3125-90.058594-34.3125-124.449219 0v.046874l-285.582031 285.550782c-.648438.683594-1.171876 1.472656-1.542969 2.335937-.101563.214844-.195313.433594-.273438.65625-.097656.21875-.1875.4375-.261719.664063l-38.65625 151.761718c-.714843 2.742188.082032 5.660157 2.085938 7.664063s4.921875 2.796875 7.664062 2.085937l151.753907-38.640624c.230469-.0625.429687-.183594.65625-.261719.230469-.078125.457031-.171875.679687-.273438.859375-.371093 1.648438-.894531 2.328125-1.542969l285.542969-285.558593.054688-.042969c34.320312-34.382812 34.320312-90.0625 0-124.445312zm-11.3125 11.308593c25.886718 25.949219 28.1875 67.183594 5.351562 95.851563l-101.191406-101.203125c28.664062-22.835938 69.898437-20.53125 95.839844 5.351562zm-107.472657 5.707031 101.808594 101.757813-28.679687 28.6875-101.808594-101.804687zm-303.445312 376.800782c12.628906 5.671875 22.742187 15.78125 28.414062 28.414062l-38.117187 9.703125zm44 24.421875c-7.367188-18.199219-21.800781-32.632813-40-40l18.144531-71.382813 93.230469 93.238282zm86.976562-25.199219-101.808593-101.785156 234.289062-234.289063 101.804688 101.808594zm0 0"/></svg>';
-   
-        this.custom_html = custom_html;
-        this.make();
 
-		
+    this.custom_html = custom_html;
+    this.make();
    }
-   
-   	event_edit(parent,options,gantt){
-	 
+
+   event_edit(parent,options,gantt){
+
 	 let $edit=parent.querySelector("#edit");
 	 let $add=parent.querySelector("#add");
-	 
+
 	 $add.addEventListener("click",function(){
-		 
+
 		 //init
 		 let size =3;
 		 let drops = [];
@@ -1098,105 +1092,88 @@ class Popup {
 		parent.querySelector(".tools").innerHTML='<svg id="valid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 406.834 406.834" style="enable-background:new 0 0 406.834 406.834;" xml:space="preserve"><polygon points="385.621,62.507 146.225,301.901 21.213,176.891 0,198.104 146.225,344.327 406.834,83.72 "/></svg>';
 
 		 parent.querySelector(".title").innerHTML="Assigned to ";
-		 
-		 
-		 
-		 
-		 
-	
+
 		 for(let i = 0 ; i<size; i++){
-			 //create drop downs 
+			 //create drop downs
 			 let drop= '<select id=s'+i+' value="">';
 			 let  op ='<option value="">Select User </option> ';
 			 op= op + p.map(p =>{
-				 return '<option value ="'+p+'">'+p+'</option>'; 
+				 return '<option value ="'+p+'">'+p+'</option>';
 			 });
-			 
+
 			 drop+=op+'</select>';
 			 d+=drop;
 		 }
-		 
+
 		  const fn=(event)=>{
 			  console.log("in");
 				 let selectedItem =event.target;
 					let arr=[];
 				 parent.querySelector("#divselect").querySelectorAll("select").forEach(j=>{
-					
-					
+
 					 if(j.value != "")
-						arr.push(j.value); 
+						arr.push(j.value);
 				 });
 				 selectedPeople=arr;
-				 
+
 				 unselectedPeople= p.filter(pers =>{
 					 return !selectedPeople.includes(pers);
 				 });
-		
-			parent.querySelector("#divselect").querySelectorAll("select").forEach(j=>{
 
-							
-						 
+			parent.querySelector("#divselect").querySelectorAll("select").forEach(j=>{
 
 							let v = j.value;
 								let  op ='<option value="">Select User </option>';
 								if(v != "")
 									op+='<option value ="'+v+'"selected>'+v+'</option>';
 								op= op + unselectedPeople.map(p =>{
-								
+
 									 return '<option value ="'+p+'">'+p+'</option>';
 								 });
 							 j.innerHTML=op;
-							
-						 
 					 });
-					 
-					 
 			 }
-		 	const  eventSelect=()=>	{ 
-			 
+		 	const  eventSelect=()=>	{
+
 		   for(let i=0;i<size;i++){
-		
+
 			 parent.querySelector("#divselect").querySelectorAll("select")[i].addEventListener("change",fn);
 		 }
 		}
-		
-		 
-		 
-		 
+
 		 parent.querySelector('.subtitle').innerHTML="<div id='divselect'></div> <div id='btn'></div>";
 		 parent.querySelector('#divselect').innerHTML=d;
-		 
+
 		 parent.querySelector('#btn').innerHTML='<svg id="more" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 52 52" style="enable-background:new 0 0 52 52;" xml:space="preserve"><g  stroke-width="6"><path d="M26,0C11.664,0,0,11.663,0,26s11.664,26,26,26s26-11.663,26-26S40.336,0,26,0z M26,50C12.767,50,2,39.233,2,26   S12.767,2,26,2s24,10.767,24,24S39.233,50,26,50z"/><path d="M38.5,25H27V14c0-0.553-0.448-1-1-1s-1,0.447-1,1v11H13.5c-0.552,0-1,0.447-1,1s0.448,1,1,1H25v12c0,0.553,0.448,1,1,1   s1-0.447,1-1V27h11.5c0.552,0,1-0.447,1-1S39.052,25,38.5,25z"/></g></svg>';
-			
+
 			   for(let i=0;i<size;i++){
-		
+
 			 parent.querySelector("#divselect").querySelectorAll("select")[i].addEventListener("change",fn);
-			 
+
 			 console.log(parent.querySelector("#divselect").querySelectorAll("select")[i]);
 		 }
 
 		 	 let more= parent.querySelector("#more");
-		 		
+
 
 		 more.addEventListener("click",function(){
 
-			 
 			 ++size;
-			 
+
 			 let selectElement= document.createElement("select");
 			 selectElement.id="s"+size;
 			 selectElement.value="";
 			 parent.querySelector("#divselect").appendChild(selectElement);
-			 
-			 
+
+
 			 let options = document.createElement('option');
 					 options.value="";
 					 options.text="Select User ";
 					 options.selected=true;
 					 selectElement.appendChild(options);
-			 
-			 
-			 
+
+
+
 			  unselectedPeople.map(p =>{
 					let options = document.createElement('option');
 					 options.value=p;
@@ -1204,78 +1181,53 @@ class Popup {
 					 selectElement.appendChild(options);
 
 			 });
-			 
-			eventSelect();			
-			 
+
+			eventSelect();
+
 		 });
-		
-	
+
+
 		 	let valid = parent.querySelector("#valid");
 			valid.addEventListener("click",function(){
-				
+
 				let task = options.task;
 				task.people=selectedPeople;
-				
+
 				gantt.update_task(task);
-				
+
 				 parent.style.opacity = 0;
 
-				
 			});
-			
-	
-		 
-		 
-		 
-		 
-		 
+
 	 });
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
+
 		$edit.addEventListener("click",function(){
 
 			parent.querySelector(".tools").innerHTML='<svg id="valid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 406.834 406.834" style="enable-background:new 0 0 406.834 406.834;" xml:space="preserve"><polygon points="385.621,62.507 146.225,301.901 21.213,176.891 0,198.104 146.225,344.327 406.834,83.72 "/></svg>';
 			parent.querySelector(".title").innerHTML='<input id="task_name" class="input1" type="text" value="'+options.task.name+'">';
 			parent.querySelector(".subtitle").innerHTML='<input id="task_start" class="input2" type="date" value="'+options.task.start+'">'+
 														'<input id="task_end" class="input2" type="date" value="'+options.task.end+'">';
-			
 			let valid = parent.querySelector("#valid");
 			valid.addEventListener("click",function(){
 				let task_name=parent.querySelector("#task_name").value;
 				let task_start=parent.querySelector("#task_start").value;
-				 let task_end=parent.querySelector("#task_end").value;
+				let task_end=parent.querySelector("#task_end").value;
 				let task = options.task;
 				task.name=task_name;
+        task.start=task_start;
 				task.end=task_end;
-				task.start=task_start;
-				
 				gantt.update_task(task);
-				
-				 parent.style.opacity = 0;
 
-				
+				parent.style.opacity = 0;
+
 			});
-			
-		
-
 		});
-	   
    }
 
     make() {
-		
-		
-   
+
+
+
 		this.HtmlTools='<div class="tools"></div> <div class="title"></div><div class="subtitle"></div><div class="pointer"></div>';
       		console.log(this.edit);
 
@@ -1283,21 +1235,12 @@ class Popup {
 
         this.hide();
 
-		
+
 		this.tools = this.parent.querySelector('.tools');
 
         this.title = this.parent.querySelector('.title');
         this.subtitle = this.parent.querySelector('.subtitle');
         this.pointer = this.parent.querySelector('.pointer');
-		
-		
-		
-		
-		
-		
-		
-		
-	
     }
 
     show(options) {
@@ -1305,7 +1248,7 @@ class Popup {
 		this.tools.innerHTML= this.add  +''+this.edit;
 		this.event_edit(this.parent,options,this.gantt);
 
-	
+
 
         if (!options.target_element) {
             throw new Error('target_element is required to show popup');
@@ -1314,7 +1257,7 @@ class Popup {
             options.position = 'left';
         }
         const target_element = options.target_element;
-	
+
 
         if (this.custom_html) {
             let html = this.custom_html(options.task);
@@ -1326,10 +1269,10 @@ class Popup {
             this.title.innerHTML = options.title;
             this.subtitle.innerHTML = options.subtitle;
             this.parent.style.width = this.parent.clientWidth + 'px';
-			
-	
+
+
         }
-		
+
 
         // set position
         let position_meta;
@@ -1353,10 +1296,10 @@ class Popup {
         this.parent.style.opacity = 1;
 
 
-		
+
 		//event
-	
-		
+
+
     }
 
     hide() {
@@ -1365,8 +1308,8 @@ class Popup {
 }
 
 class Gantt {
-    constructor(wrapper, tasks, options) {
-		
+  constructor(wrapper, tasks, options) {
+    this.selected = '';
 		this.people=["Bernadette Young",
 						"Robert Davis",
 						"Elena Reyes",
@@ -1382,12 +1325,12 @@ class Gantt {
 						"Mark Waugh",
 						"Urbain Leverrier",
 						"John Adams",
-						"Chris Davis", 
+						"Chris Davis",
 						"Rania Ali",
 						"Spiro Agnew",
 						"Diana Frost",
 						"David Nixon"];
-						
+
         this.setup_wrapper(wrapper);
         this.setup_options(options);
         this.setup_tasks(tasks);
@@ -1395,46 +1338,45 @@ class Gantt {
 		this.synchronizing_date(tasks);
 		this.setup_tasks(tasks);
 		this.our_menu();
-        this.change_view_mode();
-        this.bind_events();
-    }
+    this.change_view_mode();
+    this.bind_events();
+  }
 
 	synchronizing_date(tasks){
-		
-	this.tasks= tasks.map((task,i)=>{
+    // Cycle through all tasks
+	  this.tasks= tasks.map((task,i)=>{
 			let arr=this.get_all_dependent_tasks(task.id);
 			let s=null;
+      // Check if depency exist
 			if(arr.length>0){
-				 s=this.get_task_obj(arr[0],this.tasks);
+				// s=this.get_task_obj(arr[0],this.tasks);
+        s=task;
 				for(let a of arr){
 					let aa=this.get_task_obj(a,this.tasks);
 
-					if(Date.parse(date_utils.parse(aa.end))>Date.parse(date_utils.parse(s.end)))
+					if(Date.parse(date_utils.parse(aa.start))<Date.parse(date_utils.parse(s.start)) ||
+            Date.parse(date_utils.parse(aa.end))>Date.parse(date_utils.parse(s.end)))
 							s=aa;
-						
 				}
 			}
-			if(s)
-				task.end=s.end;
+
+			if(s){
+        task.start=s.start;
+        task.end=s.end;
+      }
 			task.has=this.get_all_dependent_tasks(task.id);
-			
 			return task;
-			
-				
-	});
-	
-	
-	
+	  });
 	}
-		
+
 	get_task_obj(id,tasks) {
-        return tasks.find(task => 
+        return tasks.find(task =>
             task.id === id
         );
     }
 
-		
-	
+
+
     setup_wrapper(element) {
         let svg_element, wrapper_element;
 
@@ -1480,74 +1422,75 @@ class Gantt {
         this.popup_wrapper = document.createElement('div');
         this.popup_wrapper.classList.add('popup-wrapper');
         this.$container.appendChild(this.popup_wrapper);
-		
-	
-		
-		
     }
 
 	our_menu(){
-			
-		// context menu 
+		// context menu
 		this.contextmenu = document.createElement('div');
         this.contextmenu.classList.add('contextmenu');
-		
+
 		this.contextmenu.style.display="none";
-		
-		
+
+
 		this.add_task=document.createElement('span');
 		this.add_sub=document.createElement('span');
-		
+    this.delete_task=document.createElement('span');
+    this.refresh_gantt=document.createElement('span');
+
 		this.add_task.appendChild(document.createTextNode("Add Task"));
 		this.add_sub.appendChild(document.createTextNode("Add Sub-Task"));
+    this.delete_task.appendChild(document.createTextNode("Delete"));
+    this.refresh_gantt.appendChild(document.createTextNode("Refresh"));
 
-		
+
 		this.contextmenu.appendChild(this.add_task);
 		this.contextmenu.appendChild(this.add_sub);
+    this.contextmenu.appendChild(this.delete_task);
+    this.contextmenu.appendChild(this.refresh_gantt);
 
-        this.$container.appendChild(this.contextmenu);
-		
+    this.$container.appendChild(this.contextmenu);
+
 		//Add Task
 		this.add_task_container=document.createElement('div');
 		this.add_task_container.classList.add('add-task');
-		
+
 		this.add_task_formulaire=document.createElement('form');
-		
+
 		this.add_task_title=document.createElement('input');
 		this.add_task_title.placeholder="Title...";
 		this.add_task_title.type="text";
-		
-		
+
+
 		this.add_task_start=document.createElement('input');
 		this.add_task_start.type="date";
-		
-		
+
+
 		this.add_task_end=document.createElement('input');
 		this.add_task_end.type="date";
-		
-		
+
+
 		this.add_task_completion=document.createElement('input');
 		this.add_task_completion.placeholder="Completion %";
 		this.add_task_completion.type="number";
 		this.add_task_completion.min="0";
 		this.add_task_completion.max="100";
-		
-		
-		
+
+
+
 		this.add_task_people=document.createElement('input');
 		this.add_task_people.placeholder="Assigned to...";
 		this.add_task_people.type="text";
-		
-		
+
+
 		this.add_task_submit=document.createElement('input');
 		this.add_task_submit.value="ADD";
 		this.add_task_submit.type="submit";
-		
+
 		this.add_task_close=document.createElement('input');
 		this.add_task_close.value="CLOSE";
 		this.add_task_close.type="reset";
-		
-		
+
+
 		this.add_task_formulaire.appendChild(this.add_task_title);
 		this.add_task_formulaire.appendChild(this.add_task_start);
 		this.add_task_formulaire.appendChild(this.add_task_end);
@@ -1555,70 +1498,47 @@ class Gantt {
 		this.add_task_formulaire.appendChild(this.add_task_people);
 		this.add_task_formulaire.appendChild(this.add_task_submit);
 		this.add_task_formulaire.appendChild(this.add_task_close);
-		
+
 		this.add_task_container.appendChild(this.add_task_formulaire);
 		this.$container.appendChild(this.add_task_container);
-		
-		
-		
-		
-		//Add Sub-Task
 
-	this.sub_task();
+		//Add Sub-Task
+	   this.sub_task();
+     this.task_delete();
 	}
 	sub_task(){
-		
+
 		this.add_sub_task_container=document.createElement('div');
 		this.add_sub_task_container.classList.add('add-task');
-		
+
 		this.add_sub_task_formulaire=document.createElement('form');
-		
+
 		this.add_sub_task_title=document.createElement('input');
 		this.add_sub_task_title.placeholder="Title...";
 		this.add_sub_task_title.type="text";
-		
-		
+
 		this.add_sub_task_start=document.createElement('input');
 		this.add_sub_task_start.type="date";
-		
-		
+
 		this.add_sub_task_end=document.createElement('input');
 		this.add_sub_task_end.type="date";
-		
-		
+
 		this.add_sub_task_completion=document.createElement('input');
 		this.add_sub_task_completion.placeholder="Completion %";
 		this.add_sub_task_completion.type="number";
 		this.add_sub_task_completion.min="0";
 		this.add_sub_task_completion.max="100";
-		
-		
-		
+
 		this.add_sub_task_dependencies=document.createElement('select');
-		let mtasks= this.tasks;
-		
-		let arr=mtasks.map(task =>{
-			return Object.assign({},{id:task.id,name:task.name});
-		});
-	
-		arr.forEach(o => {
-			let task_option= document.createElement('option');
-			task_option.value=""+o.id;
-			task_option.appendChild(document.createTextNode(o.name));
-		
-			this.add_sub_task_dependencies.appendChild(task_option);
-		});
-		
-		
 
 		this.add_sub_task_close=document.createElement('input');
 		this.add_sub_task_close.value="CLOSE";
 		this.add_sub_task_close.type="reset";
-		
+
 		this.add_sub_task_submit=document.createElement('input');
 		this.add_sub_task_submit.value="ADD";
 		this.add_sub_task_submit.type="submit";
-		
+
 		this.add_sub_task_formulaire.appendChild(this.add_sub_task_title);
 		this.add_sub_task_formulaire.appendChild(this.add_sub_task_start);
 		this.add_sub_task_formulaire.appendChild(this.add_sub_task_end);
@@ -1626,13 +1546,57 @@ class Gantt {
 		this.add_sub_task_formulaire.appendChild(this.add_sub_task_dependencies);
 		this.add_sub_task_formulaire.appendChild(this.add_sub_task_submit);
 		this.add_sub_task_formulaire.appendChild(this.add_sub_task_close);
-		
+
 		this.add_sub_task_container.appendChild(this.add_sub_task_formulaire);
 		this.$container.appendChild(this.add_sub_task_container);
-		
-		
 	}
-	
+
+  task_delete(){
+    this.delete_task_container=document.createElement('div');
+    this.delete_task_container.classList.add('add-task');
+
+    this.delete_task_formulaire=document.createElement('form');
+
+    this.delete_task_dependencies=document.createElement('select');
+
+    this.delete_task_close=document.createElement('input');
+    this.delete_task_close.value="CLOSE";
+    this.delete_task_close.type="reset";
+
+    this.delete_task_submit=document.createElement('input');
+    this.delete_task_submit.value="DELETE";
+    this.delete_task_submit.type="submit";
+
+    this.delete_task_formulaire.appendChild(this.delete_task_dependencies);
+    this.delete_task_formulaire.appendChild(this.delete_task_submit);
+    this.delete_task_formulaire.appendChild(this.delete_task_close);
+
+    this.delete_task_container.appendChild(this.delete_task_formulaire);
+    this.$container.appendChild(this.delete_task_container);
+  }
+
+  setTaskOptions(optionsElmt){
+    optionsElmt.innerHTML = "";
+    let mtasks= this.tasks;
+
+    let arr=mtasks.map(task =>{
+      return Object.assign({},{id:task.id,name:task.name});
+    });
+
+    arr.forEach(o => {
+      let task_option= document.createElement('option');
+      task_option.value=""+o.id;
+      task_option.appendChild(document.createTextNode(o.name));
+
+      optionsElmt.appendChild(task_option);
+    });
+
+    let searchObject= this.tasks.find((task) => task.name==this.selected);
+    if(searchObject!==undefined){
+      optionsElmt.value = searchObject.id;
+    }
+  }
+
     setup_options(options) {
         const default_options = {
             header_height: 50,
@@ -1732,7 +1696,7 @@ class Gantt {
             }
         }
     }
-	
+
 	update_task(task){
 		this.tasks[task._index]=task;
 		this.refresh(this.tasks);
@@ -1740,7 +1704,7 @@ class Gantt {
 
     refresh(tasks) {
         this.setup_tasks(tasks);
-		this.synchronizing_date(tasks);
+		    this.synchronizing_date(tasks);
         this.change_view_mode();
     }
 
@@ -1748,7 +1712,7 @@ class Gantt {
         this.update_view_scale(mode);
         this.setup_dates();
         this.render();
-		
+
         // fire viewmode_change event
         this.trigger_event('view_change', [mode]);
     }
@@ -1840,62 +1804,76 @@ class Gantt {
 	clear_menu(){
 		if(this.contextmenu.style.display==="block")
 			this.contextmenu.style.display="none";
-		
+
 		else if(this.add_task_container.style.display==="block")
 			this.add_task_container.style.display="none";
-		
+
 		else if(this.add_sub_task_container.style.display==="block")
 			this.add_sub_task_container.style.display="none";
 
+    else if(this.delete_task_container.style.display==="block")
+      this.delete_task_container.style.display="none";
+
 	}
 //this the event listener
-    bind_events() {
-			let isOpen=false;
-        this.bind_grid_click();
-        this.bind_bar_events();
-		let y=0,x=0;
-		
-		this.$container.addEventListener('contextmenu',ev=>{
+  bind_events() {
+		let isOpen=false;
+      this.bind_grid_click();
+      this.bind_bar_events();
+	let y=0,x=0;
+
+  this.$container.addEventListener('contextmenu',ev=>{
 		ev.preventDefault();
-		
+
 		if(!isOpen)
 		this.clear_menu();
-		
+
 		if(this.tasks.length)
 			this.add_sub.classList.remove("disabled");
 		else
 			this.add_sub.classList.add("disabled");
-		
-		
+
+
 		this.contextmenu.style.display="block";
 		x=ev.offsetX;y=ev.offsetY;
 		this.contextmenu.style.top=ev.offsetY+'px';
 		this.contextmenu.style.left=ev.offsetX+'px';
+
+    this.selected=ev.target.innerHTML;
 	});
-	
+
 	this.$container.addEventListener('click',ev=>{
 				this.contextmenu.style.display="none";
 	});
-			
-		
-			
-	
-	
-	
+
 		this.add_task.addEventListener('click',ev=>{
-			
+
 			this.add_task_container.style.display="block";
 			this.add_task_container.style.top=y+'px';
 			this.add_task_container.style.left=x+'px';
 		});
-		
+
 		this.add_sub.addEventListener('click',ev=>{
-			
+
 			this.add_sub_task_container.style.display="block";
 			this.add_sub_task_container.style.top=y+'px';
 			this.add_sub_task_container.style.left=x+'px';
+
+      this.setTaskOptions(this.add_sub_task_dependencies);
 		});
-		
+
+    this.delete_task.addEventListener('click',ev=>{
+      this.delete_task_container.style.display="block";
+      this.delete_task_container.style.top=y+'px';
+      this.delete_task_container.style.left=x+'px';
+
+      this.setTaskOptions(this.delete_task_dependencies);
+    });
+
+    this.refresh_gantt.addEventListener('click',ev=>{
+      this.refresh(tasks);
+    });
+
 		this.add_task_formulaire.addEventListener('submit',ev=>{
 			ev.preventDefault();
 			let task={
@@ -1908,28 +1886,28 @@ class Gantt {
 			}
 			if(!this.add_task_start.value)
 				this.add_task_start.classList.add("wrong");
-			
+
 			if(!this.add_task_end.value)
 				this.add_task_end.classList.add("wrong");
-			
+
 			if(!this.add_task_title.value)
 				this.add_task_title.classList.add("wrong");
-			
-			if(this.add_task_title.value && 
-				this.add_task_start.value && 
+
+			if(this.add_task_title.value &&
+				this.add_task_start.value &&
 				this.add_task_end.value){
-					
+
 					task.name=this.add_task_title.value;
 					task.end=''+this.add_task_end.value;
 					task.start=''+this.add_task_start.value;
 					task.progress=this.add_task_completion.value;
 					task.people=this.add_task_people.value.split(",");
-					
-					
+
+
 					this.tasks.push(task);
 					this.update_sub_task(task);
 					this.refresh(this.tasks);
-					
+
 					this.add_task_title.classList.remove("wrong");
 					this.add_task_title.classList.remove("wrong");
 					this.add_task_title.classList.remove("wrong");
@@ -1938,29 +1916,14 @@ class Gantt {
 					this.add_task_end.value=null;
 					this.add_task_start.value=null;
 					this.add_task_completion.value=null;
-					
+
 					this.add_task_container.style.display="none";
-				
-					
 				}
-			
-		}
-			
+		  }
 		);
-		
-		this.add_sub_task_formulaire.addEventListener('reset',ev=>{
-			this.add_sub_task_container.style.display="none";
 
-		});
-		
-		this.add_task_formulaire.addEventListener('reset',ev=>{
-		this.add_task_container.style.display="none";
-
-		});
-		
-		
 		this.add_sub_task_formulaire.addEventListener('submit',ev=>{
-			
+
 			ev.preventDefault();
 			let task={
 				start: '',
@@ -1972,23 +1935,23 @@ class Gantt {
 			}
 			if(!this.add_sub_task_start.value)
 				this.add_sub_task_start.classList.add("wrong");
-			
-			if(!this.add_task_end.value)
+
+			if(!this.add_sub_task_end.value)
 				this.add_sub_task_end.classList.add("wrong");
-			
+
 			if(!this.add_sub_task_title.value)
 				this.add_sub_task_title.classList.add("wrong");
-			
-			if(this.add_sub_task_title.value && 
-				this.add_sub_task_start.value && 
+
+			if(this.add_sub_task_title.value &&
+				this.add_sub_task_start.value &&
 				this.add_sub_task_end.value){
-					
+
 					task.name=this.add_sub_task_title.value;
 					task.end=''+this.add_sub_task_end.value;
 					task.start=''+this.add_sub_task_start.value;
 					task.progress=this.add_sub_task_completion.value;
 					task.dependencies=''+this.add_sub_task_dependencies.value;
-					
+
 					this.tasks.push(task);
 					this.update_sub_task(task);
 					this.refresh(this.tasks);
@@ -2002,26 +1965,45 @@ class Gantt {
 					this.add_sub_task_start.value=null;
 					this.add_sub_task_completion.value=null;
 					this.add_sub_task_container.style.display="none";
-
-					
-					
 				}
-			
-			
 		});
-    }
+
+    this.delete_task_formulaire.addEventListener('submit',ev=>{
+      ev.preventDefault();
+
+      let deleteObjectName = ''+this.delete_task_dependencies.value;
+
+      this.tasks = this.tasks.filter(val => val.id !== deleteObjectName);
+      this.tasks.forEach((list, ind) => {
+        list.id = 'Task '+ ind;
+      });
+
+      this.refresh(this.tasks);
+
+      this.delete_task_container.style.display="none";
+    })
+
+    this.add_task_formulaire.addEventListener('reset',ev=>{
+        this.add_task_container.style.display="none";
+    });
+
+    this.add_sub_task_formulaire.addEventListener('reset',ev=>{
+      this.add_sub_task_container.style.display="none";
+    });
+
+    this.delete_task_formulaire.addEventListener('reset',ev=>{
+      this.delete_task_container.style.display="none";
+    });
+
+  }
+
 	update_sub_task(task){
-		
-		
-		
-		
-		
+
 			let task_option= document.createElement('option');
 			task_option.value=""+task.id;
 			task_option.appendChild(document.createTextNode(task.name));
-		
+
 			this.add_sub_task_dependencies.appendChild(task_option);
-		
 	}
     render() {
         this.clear();
@@ -2322,12 +2304,8 @@ class Gantt {
             this.layers.bar.appendChild(bar.group);
             return bar;
         });
-		
     }
 
-	
-	
-	
     make_arrows() {
         this.arrows = [];
         for (let task of this.tasks) {
@@ -2435,13 +2413,13 @@ class Gantt {
             y_on_start = e.offsetY;
 
             parent_bar_id = bar_wrapper.getAttribute('data-id');
-			
+
             const ids = [
                 parent_bar_id,
                 ...this.get_all_dependent_tasks(parent_bar_id)
             ];
-			
-			
+
+
             bars = ids.map(id => this.get_bar(id));
 
             this.bar_being_dragged = parent_bar_id;
@@ -2454,7 +2432,7 @@ class Gantt {
                 $bar.finaldx = 0;
             });
         });
-		
+
 
         $.on(this.$svg, 'mousemove', e => {
             if (!action_in_progress()) return;
@@ -2492,14 +2470,14 @@ class Gantt {
             if (is_dragging || is_resizing_left || is_resizing_right) {
                 bars.forEach(bar => bar.group.classList.remove('active'));
             }
-			
+
             is_dragging = false;
             is_resizing_left = false;
             is_resizing_right = false;
 			//
 
-		
-		
+
+
         });
 
         $.on(this.$svg, 'mouseup', e => {
@@ -2510,12 +2488,12 @@ class Gantt {
                 bar.date_changed();
                 bar.set_action_completed();
             });
-				
+
         });
 
         this.bind_bar_progress();
     }
-	
+
 		getColor(progress){
 		let colorFilled="green";
 		if(progress <= 50)
@@ -2524,11 +2502,11 @@ class Gantt {
 			colorFilled="orange";
 		if(progress > 80 && progress <=90)
 			colorFilled="yellow";
-	
 
-		
+
+
 		return colorFilled;
-			
+
 	}
 
     bind_bar_progress() {
@@ -2574,7 +2552,7 @@ class Gantt {
             $.attr($handle, 'points', bar.get_progress_polygon_points());
             $bar_progress.finaldx = dx;
 
-		
+
         });
 
         $.on(this.$svg, 'mouseup', () => {
@@ -2582,9 +2560,9 @@ class Gantt {
             if (!($bar_progress && $bar_progress.finaldx)) return;
             bar.progress_changed();
             bar.set_action_completed();
-			//Here when 
+			//Here when
 			bar.$bar_progress.classList=""+this.getColor(bar.task.progress);
-			
+
 
         });
     }
